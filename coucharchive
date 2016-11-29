@@ -42,7 +42,7 @@ class CouchDBInstance(object):
 
     @property
     def confdir(self):
-        return self.tempdir.name + '/etc'
+        return '/opt/couchdb/etc'
 
     @property
     def datadir(self):
