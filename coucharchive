@@ -122,7 +122,7 @@ class CouchDBInstance(object):
                 self.process = None
 
             def run(self):
-                self.process = subprocess.Popen('couchdb -c', env=env,
+                self.process = subprocess.Popen(['couchdb', '-c'], env=env,
                                                 stdout=log, stderr=log)
                 self.process.wait()
 
