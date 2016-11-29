@@ -121,7 +121,7 @@ class CouchDBInstance(object):
 
         self.url = 'http://%s:%s@localhost:%d' % (self.creds + self.ports[:1])
 
-        for i in range(25):
+        for i in range(50):
             if not self.thread.is_alive():
                 raise Exception('CouchDB process died')
             try:
@@ -233,7 +233,6 @@ def couchdb_url(url, username, password):
                                  parts[1])
     else:
         parts[1] = '%s' % parts[1]
-    print('calling %s' % urlunsplit(parts))
     return urlunsplit(parts)  # http://user:pass@server/db/
 
 
