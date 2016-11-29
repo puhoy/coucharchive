@@ -227,9 +227,13 @@ def load(target, filename, couch_path):
 
 def couchdb_url(url, username, password):
     parts = list(urlsplit(url))
-    parts[1] = '%s:%s@%s' % (quote(username, safe=[]),
-                             quote(password, safe=[]),
-                             parts[1])
+    if username and password:
+        parts[1] = '%s:%s@%s' % (quote(username, safe=[]),
+                                 quote(password, safe=[]),
+                                 parts[1])
+    else:
+        parts[1] = '%s' % parts[1]
+    print('calling %s' % urlunsplit(parts))
     return urlunsplit(parts)  # http://user:pass@server/db/
 
 
