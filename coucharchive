@@ -69,7 +69,7 @@ class CouchDBInstance(object):
         os.mkdir(self.confdir + '/local.d')
         os.mkdir(self.datadir)
 
-        for file in ('vm.args', 'default.ini', 'local.ini'):
+        for file in ('vm.args', 'default.ini'):
             shutil.copy(os.path.join(couch_path, file), self.confdir + '/' + file)
 
         for line in fileinput.input(self.confdir + '/vm.args', inplace=True):
@@ -81,7 +81,7 @@ class CouchDBInstance(object):
         self.creds = self._random_credential()
         self.ports = self._two_unused_ports()
 
-        with open(self.confdir + '/local.d/local.ini', 'w') as f:
+        with open(self.confdir + '/local.d/coucharchive.ini', 'w') as f:
             f.write('[chttpd]\n'
                     'port = %d\n' % self.ports[0] +
                     '\n'
@@ -98,7 +98,7 @@ class CouchDBInstance(object):
     def start(self):
         env = dict(os.environ,
                    COUCHDB_VM_ARGS=self.confdir + '/vm.args',
-                   LOCALCONFDIR=self.confdir)
+                   LOCALCONFDIR=self.confdir + '/')
         print('using confdir: %s' % self.confdir)
         log = open(self.tempdir.name + '/log', 'w')
         print('logging to %s' % self.tempdir.name)
@@ -116,8 +116,27 @@ class CouchDBInstance(object):
             def terminate(self):
                 self.process.terminate()
 
+        class CouchDBPrintConfThread(threading.Thread):
+            def __init__(self):
+                super().__init__()
+                self.process = None
+
+            def run(self):
+                self.process = subprocess.Popen('couchdb -c', env=env,
+                                                stdout=log, stderr=log)
+                self.process.wait()
+
+            def terminate(self):
+                self.process.terminate()
+
+        self.thread = CouchDBPrintConfThread()
+        self.thread.start()
+        self.thread.terminate()
+        self.thread.join()
+
         self.thread = CouchDBRunnerThread()
         self.thread.start()
+
 
         self.url = 'http://%s:%s@localhost:%d' % (self.creds + self.ports[:1])
         print('starting on %s' % self.url)
