@@ -102,7 +102,8 @@ class CouchDBInstance(object):
                                       self.confdir + '/local.ini ' +
                                       self.confdir + '/local.d'))
         log = open(self.tempdir.name + '/log', 'w')
-
+        print('logging to %s' % self.tempdir.name)
+        
         class CouchDBRunnerThread(threading.Thread):
             def __init__(self):
                 super().__init__()
@@ -110,7 +111,7 @@ class CouchDBInstance(object):
 
             def run(self):
                 self.process = subprocess.Popen('couchdb', env=env,
-                                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                                stdout=log, stderr=log)
                 self.process.wait()
 
             def terminate(self):
@@ -140,7 +141,7 @@ class CouchDBInstance(object):
                 time.sleep(timeout)
 
         self.thread.terminate()
-        raise Exception('CouchDB server does not answer after %s seconds' % trys * timeout)
+        raise Exception('CouchDB server does not answer after %s seconds' % (trys * timeout))
 
     def stop(self):
         print('Terminating local CouchDB instance')
