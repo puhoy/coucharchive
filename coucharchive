@@ -120,8 +120,11 @@ class CouchDBInstance(object):
         self.thread.start()
 
         self.url = 'http://%s:%s@localhost:%d' % (self.creds + self.ports[:1])
+        print('starting on %s' % self.url)
 
-        for i in range(50):
+        trys = 100
+        timeout = 0.2
+        for i in range(trys):
             if not self.thread.is_alive():
                 raise Exception('CouchDB process died')
             try:
@@ -134,10 +137,10 @@ class CouchDBInstance(object):
                 self.thread.terminate()
                 raise Exception('CouchDB answered: %s' % self.version)
             except urllib.error.URLError:
-                time.sleep(0.2)
+                time.sleep(timeout)
 
         self.thread.terminate()
-        raise Exception('CouchDB server does not answer after 5 seconds')
+        raise Exception('CouchDB server does not answer after %s seconds' % trys * timeout)
 
     def stop(self):
         print('Terminating local CouchDB instance')
