@@ -81,7 +81,7 @@ class CouchDBInstance(object):
         self.creds = self._random_credential()
         self.ports = self._two_unused_ports()
 
-        with open(self.confdir + '/local.d/coucharchive.ini', 'w') as f:
+        with open(self.confdir + '/local.d/local.ini', 'w') as f:
             f.write('[chttpd]\n'
                     'port = %d\n' % self.ports[0] +
                     '\n'
@@ -103,7 +103,7 @@ class CouchDBInstance(object):
                                       self.confdir + '/local.d'))
         log = open(self.tempdir.name + '/log', 'w')
         print('logging to %s' % self.tempdir.name)
-        
+
         class CouchDBRunnerThread(threading.Thread):
             def __init__(self):
                 super().__init__()
