@@ -1,6 +1,0 @@
-#!/home/meatpuppet/git_fun/coucharchive/env/bin/python3
-# EASY-INSTALL-DEV-SCRIPT: 'coucharchive==1.0.1','coucharchive'
-__requires__ = 'coucharchive==1.0.1'
-__import__('pkg_resources').require('coucharchive==1.0.1')
-__file__ = '/home/meatpuppet/git_fun/coucharchive/coucharchive'
-exec(compile(open(__file__).read(), __file__, 'exec'))
