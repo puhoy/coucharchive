@@ -62,7 +62,7 @@ class CouchDBInstance(object):
         _, port2 = s2.getsockname()
         s1.close()
         s2.close()
-        return port1, port2
+        return 5986, 5984
 
     def _setup(self, couch_path):
         os.mkdir(self.confdir)
