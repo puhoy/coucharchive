@@ -62,7 +62,7 @@ class CouchDBInstance(object):
         _, port2 = s2.getsockname()
         s1.close()
         s2.close()
-        return 5986, 5984
+        return port1, port2
 
     def _setup(self, couch_path):
         os.mkdir(self.confdir)
@@ -98,9 +98,7 @@ class CouchDBInstance(object):
     def start(self):
         env = dict(os.environ,
                    COUCHDB_VM_ARGS=self.confdir + '/vm.args',
-                   COUCHDB_INI_FILES=(self.confdir + '/default.ini ' +
-                                      self.confdir + '/local.ini ' +
-                                      self.confdir + '/local.d'))
+                   LOCALCONFDIR=self.confdir)
         log = open(self.tempdir.name + '/log', 'w')
         print('logging to %s' % self.tempdir.name)
 
@@ -120,7 +118,7 @@ class CouchDBInstance(object):
         self.thread = CouchDBRunnerThread()
         self.thread.start()
 
-        self.url = 'http://localhost:%d' % (self.ports[:1])
+        self.url = 'http://%s:%s@localhost:%d' % (self.creds + self.ports[:1])
         print('starting on %s' % self.url)
 
         trys = 100
