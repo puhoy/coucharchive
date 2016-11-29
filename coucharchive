@@ -111,7 +111,7 @@ class CouchDBInstance(object):
                 self.confdir = confdir
 
             def run(self):
-                self.process = subprocess.Popen(['couchdb', '-A', self.confdir], env=env,
+                self.process = subprocess.Popen(['couchdb', '-A', self.confdir + '/local.d/'], env=env,
                                                 stdout=log, stderr=log)
                 self.process.wait()
 
