@@ -101,6 +101,7 @@ class CouchDBInstance(object):
                    LOCALCONFDIR=self.confdir + '/')
         print('using confdir: %s' % self.confdir)
         log = open(self.tempdir.name + '/log', 'w')
+        conf_log = open(self.tempdir.name + '/conf-log', 'w')
         print('logging to %s' % self.tempdir.name)
 
         class CouchDBRunnerThread(threading.Thread):
@@ -123,7 +124,7 @@ class CouchDBInstance(object):
 
             def run(self):
                 self.process = subprocess.Popen(['couchdb', '-c'], env=env,
-                                                stdout=log, stderr=log)
+                                                stdout=conf_log, stderr=log)
                 self.process.wait()
 
             def terminate(self):
@@ -132,6 +133,7 @@ class CouchDBInstance(object):
         self.thread = CouchDBPrintConfThread()
         self.thread.start()
         self.thread.terminate()
+
         self.thread.join()
 
         self.thread = CouchDBRunnerThread()
