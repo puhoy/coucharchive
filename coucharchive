@@ -120,7 +120,7 @@ class CouchDBInstance(object):
         self.thread = CouchDBRunnerThread()
         self.thread.start()
 
-        self.url = 'http://%s:%s@localhost:%d' % (self.creds + self.ports[:1])
+        self.url = 'http://localhost:%d' % (self.ports[:1])
         print('starting on %s' % self.url)
 
         trys = 100
