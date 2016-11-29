@@ -177,12 +177,6 @@ def replicate_couchdb_server(source_url, target_url):
         print('Replicating _security for "%s"' % db)
         target_db.security = source_db.security
 
-        source_len, target_len = len(source_db), len(target_db)
-        if source_len != target_len:
-            raise Exception(
-                'Replicated database has %d docs, source has %d'
-                % (source_len, target_len))
-
 
 def dump(source, filename, couch_path):
     with CouchDBInstance(couch_path) as local_couchdb:
