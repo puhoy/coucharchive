@@ -105,38 +105,20 @@ class CouchDBInstance(object):
         print('logging to %s' % self.tempdir.name)
 
         class CouchDBRunnerThread(threading.Thread):
-            def __init__(self):
+            def __init__(self, confdir):
                 super().__init__()
                 self.process = None
+                self.confdir = confdir
 
             def run(self):
-                self.process = subprocess.Popen('couchdb', env=env,
+                self.process = subprocess.Popen(['couchdb', '-A', self.confdir], env=env,
                                                 stdout=log, stderr=log)
                 self.process.wait()
 
             def terminate(self):
                 self.process.terminate()
 
-        class CouchDBPrintConfThread(threading.Thread):
-            def __init__(self):
-                super().__init__()
-                self.process = None
-
-            def run(self):
-                self.process = subprocess.Popen(['couchdb', '-c'], env=env,
-                                                stdout=conf_log, stderr=log)
-                self.process.wait()
-
-            def terminate(self):
-                self.process.terminate()
-
-        self.thread = CouchDBPrintConfThread()
-        self.thread.start()
-        self.thread.terminate()
-
-        self.thread.join()
-
-        self.thread = CouchDBRunnerThread()
+        self.thread = CouchDBRunnerThread(self.confdir)
         self.thread.start()
 
 
