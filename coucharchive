@@ -110,7 +110,7 @@ class CouchDBInstance(object):
 
             def run(self):
                 self.process = subprocess.Popen('couchdb', env=env,
-                                                stdout=log, stderr=log)
+                                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 self.process.wait()
 
             def terminate(self):
