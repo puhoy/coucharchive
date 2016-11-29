@@ -65,12 +65,7 @@ class CouchDBInstance(object):
         return port1, port2
 
     def _setup(self, couch_path):
-        os.mkdir(self.confdir)
-        os.mkdir(self.confdir + '/local.d')
         os.mkdir(self.datadir)
-
-        for file in ('vm.args', 'default.ini'):
-            shutil.copy(os.path.join(couch_path, file), self.confdir + '/' + file)
 
         for line in fileinput.input(self.confdir + '/vm.args', inplace=True):
             if re.match(r'^-name \S+$', line):
