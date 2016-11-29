@@ -99,6 +99,7 @@ class CouchDBInstance(object):
         env = dict(os.environ,
                    COUCHDB_VM_ARGS=self.confdir + '/vm.args',
                    LOCALCONFDIR=self.confdir)
+        print('using confdir: %s' % self.confdir)
         log = open(self.tempdir.name + '/log', 'w')
         print('logging to %s' % self.tempdir.name)
 
