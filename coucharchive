@@ -26,12 +26,13 @@ import couchdb
 
 
 class CouchDBInstance(object):
-    def __init__(self, couch_path):
+    def __init__(self, couch_path, couch_binary):
         self.tempdir = tempfile.TemporaryDirectory(prefix='coucharchive-')
         self.thread = None
         self.url = None
-
-        self._setup(couch_path)
+        self.couch_path = couch_path
+        self.cuch_binary = couch_binary
+        self._setup()
 
     def __enter__(self):
         return self
@@ -42,7 +43,7 @@ class CouchDBInstance(object):
 
     @property
     def confdir(self):
-        return '/opt/couchdb/etc'
+        return self.couch_path
 
     @property
     def datadir(self):
@@ -64,7 +65,7 @@ class CouchDBInstance(object):
         s2.close()
         return port1, port2
 
-    def _setup(self, couch_path):
+    def _setup(self):
         os.mkdir(self.datadir)
 
         for line in fileinput.input(self.confdir + '/vm.args', inplace=True):
@@ -96,17 +97,17 @@ class CouchDBInstance(object):
                    LOCALCONFDIR=self.confdir + '/')
         print('using confdir: %s' % self.confdir)
         log = open(self.tempdir.name + '/log', 'w')
-        conf_log = open(self.tempdir.name + '/conf-log', 'w')
         print('logging to %s' % self.tempdir.name)
 
         class CouchDBRunnerThread(threading.Thread):
-            def __init__(self, confdir):
+            def __init__(self, confdir, couch_binary):
                 super().__init__()
                 self.process = None
                 self.confdir = confdir
+                self.couch_binary = couch_binary
 
             def run(self):
-                self.process = subprocess.Popen(['couchdb', '-a', self.confdir + '/local.d/coucharchive.ini'], env=env,
+                self.process = subprocess.Popen([self.couch_binary, '-a', self.confdir + '/local.d/coucharchive.ini'], env=env,
                                                 stdout=log, stderr=log)
                 self.process.wait()
 
@@ -178,8 +179,8 @@ def replicate_couchdb_server(source_url, target_url):
         target_db.security = source_db.security
 
 
-def dump(source, filename, couch_path):
-    with CouchDBInstance(couch_path) as local_couchdb:
+def dump(source, filename, couch_path, couch_binary):
+    with CouchDBInstance(couch_path, couch_binary) as local_couchdb:
         local_couchdb.start()
         print('Launched CouchDB instance at %s' % local_couchdb.url)
 
@@ -201,11 +202,11 @@ def dump(source, filename, couch_path):
             tar.addfile(tarinfo, BytesIO(info))
 
 
-def load(target, filename, couch_path):
+def load(target, filename, couch_path, couch_binary):
     if not os.path.isfile(filename):
         raise Exception('File "%s" does not exist' % filename)
 
-    with CouchDBInstance(couch_path) as local_couchdb:
+    with CouchDBInstance(couch_path, couch_binary) as local_couchdb:
         with tarfile.open(filename) as tar, \
                 tempfile.TemporaryDirectory(prefix='coucharchive-') as tmp:
             print('Extracting backup archive from %s' % filename)
@@ -240,6 +241,10 @@ def main():
                         required=False, action='store',
                         default='/etc/couchdb/',
                         help='path to couch config')
+    parser.add_argument('-b', '--couch-binary', dest='couch_binary',
+                        required=False, action='store',
+                        default='couchdb',
+                        help='path to couch binary')
     subparsers = parser.add_subparsers(dest='action')
     dump_parser = subparsers.add_parser('dump')
     dump_parser.add_argument('-o', '--output-file', dest='output_file',
@@ -259,9 +264,9 @@ def main():
                       config['database'].get('password', ''))
 
     if args.action == 'dump':
-        dump(url, args.output_file, args.couch_path)
+        dump(url, args.output_file, args.couch_path, args.couch_binary)
     elif args.action == 'load':
-        load(url, args.input_file, args.couch_path)
+        load(url, args.input_file, args.couch_path, args.couch_binary)
     else:
         parser.print_usage()
         parser.exit(1)
