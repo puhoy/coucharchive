@@ -31,7 +31,7 @@ class CouchDBInstance(object):
         self.thread = None
         self.url = None
         self.couch_path = couch_path
-        self.cuch_binary = couch_binary
+        self.couch_binary = couch_binary
         self._setup()
 
     def __enter__(self):
@@ -114,7 +114,7 @@ class CouchDBInstance(object):
             def terminate(self):
                 self.process.terminate()
 
-        self.thread = CouchDBRunnerThread(self.confdir)
+        self.thread = CouchDBRunnerThread(self.confdir, self.couch_binary)
         self.thread.start()
 
 
@@ -245,6 +245,7 @@ def main():
                         required=False, action='store',
                         default='couchdb',
                         help='path to couch binary')
+
     subparsers = parser.add_subparsers(dest='action')
     dump_parser = subparsers.add_parser('dump')
     dump_parser.add_argument('-o', '--output-file', dest='output_file',
