@@ -164,6 +164,8 @@ def replicate_couchdb_server(source_url, target_url):
 
     all_dbs = list(source)
 
+    print("replicating from %s to %s" % (source_url, target_url))
+
     for db in all_dbs:
         print('Creating database "%s"' % db)
         target.create(db)
